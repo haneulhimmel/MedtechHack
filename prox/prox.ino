@@ -82,7 +82,7 @@ void loop() {
         timerActive = true;
     } else if (sensorReturn == LOW && timerActive) {
       Serial.print("Object Far\n");
-      myServo.write(90);
+      myServo.write(75);
       timerActive = false;
     }
     delay(2000);
