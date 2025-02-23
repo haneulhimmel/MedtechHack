@@ -11,6 +11,7 @@ int sensorInput = 10;
 int distance = 0;
 int sensorReturn = 0;
 long previousDetect = 0;
+//static bool timerActive = false;
 
 long interval = 3000;
 
@@ -20,9 +21,11 @@ void setup() {
   myServo.attach(12);  // Attach the servo to pin 12
   myServo.write(val);  // Set initial position
   delay(1000);  // Wait for a second to ensure the servo is at the initial position
+
+  previousDetect = 0;
 }
 
-bool checkSensor(int *sensorReturn) {
+/*bool checkSensor(int *sensorReturn) {
   int measuredVal1;
   int measuredVal2;
   bool detected;
@@ -42,37 +45,46 @@ bool checkSensor(int *sensorReturn) {
     detected = false;
   }
   return detected;
-}
+}*/
 
 void loop() {
   bool result;
   bool reset = false;
-  int count = 0;
-
-  unsigned long currentDetect = millis();
-  if (currentDetect - previousDetect >= interval) {
-    previousDetect = currentDetect;
-    reset = true;
-  }
+  unsigned long currentDetect;
+  static bool timerActive = false;
 
   //Calls function to load boolean result into var result
-  result = checkSensor(&sensorReturn);
-  if (result == true) {
-    if (sensorReturn == LOW) {
-      if (distance == 1) {
+  sensorReturn = digitalRead(sensorInput);
+
+  
+  //if (result == true) {
+    /*if (sensorReturn == LOW && timerActive == false) {
         Serial.print("Object Near\n");
-        distance = 0;
+        //distance = 0;
         myServo.write(0);
-        count++;
-      }
-    } 
-    else {
-      if (distance == 0 && reset) {  
-        Serial.print("Object Far\n");
-        distance = 1;
-        myServo.write(90);
-      }
+        timerActive = true;
+        currentDetect = millis();
+    } else if ((sensorReturn == LOW && timerActive == true)) {
+        if (currentDetect - previousDetect >= interval) {
+          previousDetect = currentDetect;
+          reset = true;
+        }
+        if (reset == true) {
+          myServo.write(90);
+          timerActive = false;
+          reset = false;
+        }
+    }*/
+    if (sensorReturn == LOW && !timerActive) {
+        Serial.print("Object Near\n");
+        //distance = 0;
+        myServo.write(0);
+        timerActive = true;
+    } else if (sensorReturn == LOW && timerActive) {
+      Serial.print("Object Far\n");
+      myServo.write(90);
+      timerActive = false;
     }
-  }
+    delay(2000);
 }
 
